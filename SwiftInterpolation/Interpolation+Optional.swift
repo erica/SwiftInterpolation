@@ -24,6 +24,29 @@ extension String.StringInterpolation {
 }
 
 extension String.StringInterpolation {
+  /// Interpolates optional values using a supplied style.
+  ///
+  /// ```
+  /// // "There's Optional(23) and nil"
+  /// "There's \(value1, .format(style: .default)) and \(value2, .format(style: .default))"
+  ///
+  /// // "There's Optional(23) and Optional(nil)"
+  /// "There's \(value1, .format(style: .descriptive)) and \(value2, .format(style: .descriptive))"
+  ///
+  /// // "There's 23 and nil"
+  /// "There's \(value1, .format(style: .stripped)) and \(value2, .format(style: .stripped))"
+  /// "There's \(value1, .format()) and \(value2, .format())"
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - value: An optional value to interpolate for the `.some` case
+  ///   - formatter: An `OptionalFormatter` instance
+  public mutating func appendInterpolation<Wrapped>(_ value: Wrapped?, _ formatter: OptionalFormatter) {
+    appendLiteral(formatter.string(from: value))
+  }
+}
+
+public class OptionalFormatter {
   /// Optional Interpolation Styles
   public enum OptionalStyle {
     /// Includes the word `Optional` for both `some` and `none` cases
@@ -35,58 +58,44 @@ extension String.StringInterpolation {
     case `default`
   }
   
-  /// Interpolates optional values using a supplied style.
-  ///
-  /// ```
-  /// // "There's Optional(23) and nil"
-  /// "There's \(value1, optStyle: .default) and \(value2, optStyle: .default)"
-  ///
-  /// // "There's Optional(23) and Optional(nil)"
-  /// "There's \(value1, optStyle: .descriptive) and \(value2, optStyle: .descriptive)"
-  ///
-  /// // "There's 23 and nil"
-  /// "There's \(value1, optStyle: .stripped) and \(value2, optStyle: .stripped)"
-  /// ```
-  ///
-  /// - Parameters:
-  ///   - value: An optional value to interpolate for the `.some` case
-  ///   - optStyle: The style used to present the optional (`String.StringInterpolation.OptionalStyle`)
-  ///   - default: The fallback presentation for `.none` case
-  public mutating func appendInterpolation<Wrapped>(
-    _ value: Wrapped?,
-    optStyle style: String.StringInterpolation.OptionalStyle,
-    default defaultValue: String = "nil"
-    ) {
+  ///  The style used to present the optional
+  public var style: OptionalStyle = .stripped
+  
+  /// The fallback text for `.none` case
+  public var defaultValue: String = "nil"
+  
+  public init(style: OptionalStyle = .stripped, `default`: String = "nil") {
+    (self.style, self.defaultValue) = (style, `default`)
+  }
+  
+  public static func format(style: OptionalStyle = .stripped, `default`: String = "nil") -> OptionalFormatter {
+    return OptionalFormatter(style: style, default: `default`)
+  }
+  
+  public func string<Wrapped>(from value: Wrapped?) -> String {
     switch style {
     /// Includes the word `Optional` for both `some` and `none` cases
     case .descriptive:
       if value == nil {
-        appendLiteral("Optional(\(defaultValue))")
+        return "Optional(\(defaultValue))"
       } else {
-        appendLiteral(String(describing: value))
+        return String(describing: value)
       }
     /// Strips the word `Optional` for both `some` and `none` cases
     case .stripped:
       if let value = value {
-        appendInterpolation(value)
+        return "\(value)"
       } else {
-        appendLiteral("\(defaultValue)")
+        return defaultValue
       }
       /// Uses system interpolation, which includes the word `Optional` for
     /// `some` cases but not `none`.
     default:
-      appendLiteral(String(describing: value))
+      if value != nil {
+        return String(describing: value)
+      } else {
+        return defaultValue
+      }
     }
-  }
-  
-  /// Interpolates an optional using "stripped" interpolation, omitting
-  /// the word "Optional" from both `.some` and `.none` cases
-  ///
-  /// ```
-  /// // "There's 23 and nil"
-  /// "There's \(describing: value1) and \(describing: value2)"
-  /// ```
-  public mutating func appendInterpolation<Wrapped>(describing value: Wrapped?) {
-    appendInterpolation(value, optStyle: .stripped)
   }
 }
