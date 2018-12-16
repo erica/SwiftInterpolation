@@ -6,6 +6,23 @@
 
 import Foundation
 
+public extension String.StringInterpolation {
+  /// Interpolates using a custom string formatter, allowing the results to
+  /// be padded as desired, for example:
+  ///
+  /// ```
+  /// "\(23, .format(width: 5))" // "   23"
+  /// "\(23, .format(alignment: .left, width: 5))" // "23   "
+  ///
+  /// - Parameters:
+  ///   - value: a value to present
+  ///   - formatter: a string formatter
+  mutating func appendInterpolation<Value>(_ value:  Value, _ formatter: StringFormatter, width: Int = 0) {
+    if width != 0 { formatter.width = width }
+    appendLiteral(formatter.string(from: "\(value)"))
+  }
+}
+
 /// A formatter that adjusts string layout.
 public class StringFormatter {
   /// The direction from which a string floats when
@@ -58,22 +75,5 @@ public class StringFormatter {
       let halfPad = corePadCount / 2
       return  padding(corePadCount - halfPad) + string + padding(halfPad)
     }
-  }
-}
-
-public extension String.StringInterpolation {
-  /// Interpolates using a custom string formatter, allowing the results to
-  /// be padded as desired, for example:
-  ///
-  /// ```
-  /// "\(23, .format(width: 5))" // "   23"
-  /// "\(23, .format(alignment: .left, width: 5))" // "23   "
-  ///
-  /// - Parameters:
-  ///   - value: a value to present
-  ///   - formatter: a string formatter
-  mutating func appendInterpolation<Value>(_ value:  Value, _ formatter: StringFormatter, width: Int = 0) {
-    if width != 0 { formatter.width = width }
-    appendLiteral(formatter.string(from: "\(value)"))
   }
 }

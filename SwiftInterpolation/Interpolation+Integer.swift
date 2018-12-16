@@ -6,6 +6,25 @@
 
 import Foundation
 
+public extension String.StringInterpolation {
+  /// Interpolates a binary integer value using the supplied integer formatter,
+  /// for example:
+  ///
+  /// ```
+  /// "\(15, .format(radix: .hex))" // F
+  /// "\(15, .format(radix: .hex, isBytewise: true))" // 0F
+  /// "\(15, .format(radix: .hex, usesPrefix: true, isBytewise: true))" // 0x0F
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - value: an integer value
+  ///   - formatter: a configured integer formatter
+  mutating func appendInterpolation<IntegerValue: BinaryInteger>(
+    _ value: IntegerValue, _ formatter: IntegerFormatter) {
+    appendLiteral(formatter.string(from: value))
+  }
+}
+
 /// A formatter that converts between binary integer values and their textual representations.
 public class IntegerFormatter {
   /// Represents a single numeric radix
@@ -73,8 +92,7 @@ public class IntegerFormatter {
     // String is now (0)* + uppercased-radix-encoded-string
     if string.count < width {
       string = String(repeating: "0", count: max(0, width - string.count)) + string
-    }
-    
+    }    
     
     // Prefixes use lower case, sourced from `String.StringInterpolation.Radix`
     // String is now (optional-prefix) + uppercased-radix-encoded-string
@@ -86,21 +104,3 @@ public class IntegerFormatter {
   }
 }
 
-public extension String.StringInterpolation {
-  /// Interpolates a binary integer value using the supplied integer formatter,
-  /// for example:
-  ///
-  /// ```
-  /// "\(15, .format(radix: .hex))" // F
-  /// "\(15, .format(radix: .hex, isBytewise: true))" // 0F
-  /// "\(15, .format(radix: .hex, usesPrefix: true, isBytewise: true))" // 0x0F
-  /// ```
-  ///
-  /// - Parameters:
-  ///   - value: an integer value
-  ///   - formatter: a configured integer formatter
-  mutating func appendInterpolation<IntegerValue: BinaryInteger>(
-    _ value: IntegerValue, _ formatter: IntegerFormatter) {
-    appendLiteral(formatter.string(from: value))
-  }
-}
