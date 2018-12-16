@@ -24,7 +24,7 @@ extension String.StringInterpolation {
   /// "Premiere Cheese Sandwich\(if: sandwich.IsStarred, " (*)")"
   /// ```
   ///
-  /// - parameters:
+  /// - Parameters:
   ///   - condition: a Boolean predicate that evaluates to true or false
   ///   - literal: a `String` literal to include on conditional success
   mutating func appendInterpolation(if condition: @autoclosure () -> Bool, _ literal: StringLiteralType) {
