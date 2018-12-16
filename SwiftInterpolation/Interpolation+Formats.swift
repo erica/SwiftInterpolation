@@ -2,7 +2,21 @@
 // Only works on NSNumbers
 // Could easily extend NumberFormatter for presets
 
+// This does not get called properly with, for example, Double.pi
+//// Thanks Brent Royal-Gordan
+//public extension String.StringInterpolation {
+//  mutating func appendInterpolation<Value: _ObjectiveCBridgeable>(_ value: Value, formatter: NumberFormatter) where Value._ObjectiveCType == NSNumber {
+//    if let string = formatter.string(from: NSNumber(nonretainedObject: value)) {
+//      appendLiteral(string)
+//    } else {
+//      appendLiteral("Unformattable<\(value)>")
+//    }
+//  }
+//}
+
 public extension String.StringInterpolation {
+  /// Interpolates a floating point value using a
+  /// number formatter.
   mutating func appendInterpolation<Value: FloatingPoint>(_ number: Value, formatter: NumberFormatter) {
     if
       let value = number as? NSNumber,
@@ -13,6 +27,7 @@ public extension String.StringInterpolation {
     }
   }
   
+  /// Interpolates an integer value using a number formatter.
   mutating func appendInterpolation<Value: BinaryInteger>(_ number: Value, formatter: NumberFormatter) {
     if
       let value = number as? NSNumber,
@@ -36,12 +51,11 @@ formatter.paddingPosition = .beforePrefix
 formatter.paddingCharacter = "0"
 formatter.minimumIntegerDigits = 5
 
-formatter.string(from: NSNumber(value: Double.pi))
-
+// formatter.string(from: NSNumber(value: Double.pi))
 "\(Double.pi, formatter: formatter)"
 "\(5, formatter: formatter)"
 
-if let value = Double.pi as? NSNumber {
-  print(value)
-}
-
+//if let value = Double.pi as? NSNumber {
+//  print(value)
+//}
+//
